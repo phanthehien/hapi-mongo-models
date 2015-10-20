@@ -1417,3 +1417,66 @@ lab.experiment('BaseModel Proxied Methods', function () {
         });
     });
 });
+
+
+lab.experiment('Sanity Checks', function () {
+
+    var SubModel;
+
+
+    lab.before(function (done) {
+
+        SubModel = BaseModel.extend({
+            constructor: function (attrs) {
+
+                ObjectAssign(this, attrs);
+            }
+        });
+
+        SubModel._collection = 'sanitychecks';
+
+        BaseModel.connect(Config.mongodb, function (err, db) {
+
+            done(err);
+        });
+    });
+
+
+    lab.test('it supports the $set operator', function (done) {
+
+        var newDoc =  {
+            name: 'Dread Pirate Roberts',
+            nested: {
+                deep: {
+                    treasure: 'Goooooold'
+                }
+            }
+        };
+
+        SubModel.insertOne(newDoc, function (err, results) {
+
+            if (err) {
+                return done(err);
+            }
+
+            var id = results[0]._id.toString();
+            var updateOperation = {
+                $set: {
+                    'nested.deep.treasure': 'Hey you guys!'
+                }
+            };
+
+            Code.expect(results[0].nested.deep.treasure).to.equal('Goooooold');
+
+            SubModel.findByIdAndUpdate(id, updateOperation, function (err, result) {
+
+                if (err) {
+                    return done(err);
+                }
+
+                Code.expect(result.nested.deep.treasure).to.equal('Hey you guys!');
+                done();
+            });
+        });
+    });
+});
