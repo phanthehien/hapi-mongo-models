@@ -53,13 +53,13 @@ exports.register = function (server, options, next) {
     MongoModels
         .connect(mongodb.uri, mongodb.options)
         .then((db) => {
+
             next();
-    }).catch((err) => {
-        if (err) {
+        }).catch((err) => {
+
             server.log('Error connecting to MongoDB via MongoModels.');
             return next(err);
-        }
-    });
+        });
 };
 
 
