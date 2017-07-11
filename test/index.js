@@ -7,7 +7,6 @@ const Lab = require('lab');
 const Path = require('path');
 const Proxyquire = require('proxyquire');
 
-
 const lab = exports.lab = Lab.script();
 const stub = {
     MongoModels: {}
@@ -16,16 +15,15 @@ const ModelsPlugin = Proxyquire('..', {
     'mongo-models': stub.MongoModels
 });
 
-
 lab.experiment('Plugin', () => {
 
     lab.test('it returns an error when the db connection fails', (done) => {
 
         const realConnect = stub.MongoModels.connect;
 
-        stub.MongoModels.connect = function (uri, options, callback) {
+        stub.MongoModels.connect = function (uri, options) {
 
-            callback(Error('connect failed'));
+            return Promise.reject(new Error('connect failed'));
         };
 
         const server = new Hapi.Server();
@@ -45,7 +43,6 @@ lab.experiment('Plugin', () => {
             done();
         });
     });
-
 
     lab.test('it successfuly connects to the db and exposes the base model', (done) => {
 
@@ -71,7 +68,6 @@ lab.experiment('Plugin', () => {
             done();
         });
     });
-
 
     lab.test('it successfuly connects to the db and exposes defined models', (done) => {
 
@@ -103,7 +99,6 @@ lab.experiment('Plugin', () => {
         });
     });
 
-
     lab.test('it successfuly connects to the db and exposes defined models (with absolute paths)', (done) => {
 
         const server = new Hapi.Server();
@@ -112,7 +107,7 @@ lab.experiment('Plugin', () => {
             options: {
                 mongodb: Config.mongodb,
                 models: {
-                    Dummy: Path.join(__dirname, 'fixtures/dummy-model')
+                    Dummy: Path.join(__dirname, './fixtures/dummy-model')
                 }
             }
         };
@@ -133,7 +128,6 @@ lab.experiment('Plugin', () => {
             done();
         });
     });
-
 
     lab.test('it successfuly connects to the db, exposes defined models and skips indexing', (done) => {
 
@@ -173,7 +167,6 @@ lab.experiment('Plugin', () => {
         });
     });
 
-
     lab.test('it skips calling `createIndexes` when none are defined', (done) => {
 
         const server = new Hapi.Server();
@@ -210,7 +203,6 @@ lab.experiment('Plugin', () => {
             });
         });
     });
-
 
     lab.test('it allows models to be added dynamically specifically during another plugin\'s registration', (done) => {
 

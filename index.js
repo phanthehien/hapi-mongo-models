@@ -50,14 +50,15 @@ exports.register = function (server, options, next) {
         done();
     });
 
-    MongoModels.connect(mongodb.uri, mongodb.options, (err, db) => {
-
+    MongoModels
+        .connect(mongodb.uri, mongodb.options)
+        .then((db) => {
+            next();
+    }).catch((err) => {
         if (err) {
             server.log('Error connecting to MongoDB via MongoModels.');
             return next(err);
         }
-
-        next();
     });
 };
 
